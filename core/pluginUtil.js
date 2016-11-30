@@ -1,11 +1,14 @@
 var _ = require('lodash');
 var async = require('async');
+var fs = require('fs');
+var toml = require('toml');
 
 var util = require(__dirname + '/util');
 
 var log = require(util.dirs().core + 'log');
 
 var config = util.getConfig();
+var dirs = util.dirs();
 var pluginDir = util.dirs().plugins;
 var gekkoMode = util.gekkoMode();
 
@@ -55,12 +58,27 @@ var pluginHelper = {
     return error;
   },
   // loads a plugin
-  // 
+  //
   // @param Object plugin
   //    plugin config object
   // @param Function next
   //    callback
   load: function(plugin, next) {
+    // plugin settings can be either part of the main config OR a seperate
+    // toml configuration file. In case of the toml config file we need to
+    // parse and attach to main config object
+
+    if(config[plugin.slug]) {
+      log.warn('\t', 'Config already has', plugin.slug, 'parameters. Ignoring toml file');
+    } else {
+      var tomlFile = dirs.config + 'plugins/' + plugin.slug + '.toml';
+      if(!fs.existsSync(tomlFile)) {
+        log.warn('\t', plugin.slug, 'toml configuration file not found.');
+        return;
+      }
+      var rawSettings = fs.readFileSync(tomlFile);
+      config[plugin.slug] = toml.parse(rawSettings);
+    }
 
     plugin.config = config[plugin.slug];
 
@@ -107,7 +125,7 @@ var pluginHelper = {
       var instance = new Constructor(plugin);
       instance.meta = plugin;
       _.defer(function() {
-        next(null, instance); 
+        next(null, instance);
       });
     }
 
