@@ -71,16 +71,15 @@ Reader.prototype.mostRecentWindow = function(from, to, next) {
   })
 }
 
-Reader.prototype.tableExists = function(name, next) {  
+Reader.prototype.tableExists = function(name, next) {
 
   this.db.all(`
     SELECT name FROM sqlite_master WHERE type='table' AND name='${sqliteUtil.table('candles')}';
   `, function(err, rows) {
     if(err) {
       console.error(err);
-      return util.die('DB error at `get`');
+      return util.die('DB error at `tableExists`');
     }
-
     next(null, rows.length === 1);
   });
 }
@@ -110,7 +109,7 @@ Reader.prototype.count = function(from, to, next) {
   `, function(err, res) {
     if(err) {
       console.error(err);
-      return util.die('DB error at `get`');
+      return util.die('DB error at `count`');
     }
 
     next(null, _.first(res).count);
@@ -123,7 +122,7 @@ Reader.prototype.countTotal = function(next) {
   `, function(err, res) {
     if(err) {
       console.error(err);
-      return util.die('DB error at `get`');
+      return util.die('DB error at `countTotal`');
     }
 
     next(null, _.first(res).count);
@@ -148,7 +147,7 @@ Reader.prototype.getBoundry = function(next) {
   `, function(err, rows) {
     if(err) {
       console.error(err);
-      return util.die('DB error at `get`');
+      return util.die('DB error at `getBoundry`');
     }
 
     next(null, _.first(rows));

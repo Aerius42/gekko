@@ -63,6 +63,17 @@ Reader.prototype.mostRecentWindow = function mostRecentWindow (from, to, next) {
   })
 }
 
+Reader.prototype.tableExists = function(name, next) {
+
+  this.collection.findOne({pair: this.pair}, (err, docs) => {
+    if(err) {
+      console.error(err);
+      return util.die('DB error at `tableExists`');
+    }
+    next(null, true);
+  });
+}
+
 Reader.prototype.get = function get (from, to, what, next) { // returns all fields in general
   // Find some documents
   this.collection.find({ pair: this.pair, start: { $gte: from, $lte: to } }).sort({ start: 1 }).toArray((err, docs) => {
@@ -98,7 +109,7 @@ Reader.prototype.getBoundry = function getBoundry (next) {
     }
     var start = _.first(docs).start;
 
-    collection.find({ pair: this.pair }, { start: 1 }).sort({ start: -1 }).limit(1).toArray((err2, docs2) => {
+    this.collection.find({ pair: this.pair }, { start: 1 }).sort({ start: -1 }).limit(1).toArray((err2, docs2) => {
       if (err2) {
         return util.die('DB error at `getBoundry`');
       }
