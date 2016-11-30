@@ -80,7 +80,7 @@ Reader.prototype.get = function get (from, to, what, next) { // returns all fiel
     if (err) {
       return util.die('DB error at `get`');
     }
-    return next(null, docs);
+    next(null, docs);
   });
 }
 
@@ -89,7 +89,7 @@ Reader.prototype.count = function fCount (from, to, next) {
     if (err) {
       return util.die('DB error at `count`');
     }
-    return next(null, count);
+    next(null, count);
   })
 }
 
@@ -98,7 +98,7 @@ Reader.prototype.countTotal = function countTotal (next) {
     if (err) {
       return util.die('DB error at `countTotal`');
     }
-    return next(null, count);
+    next(null, count);
   })
 }
 
@@ -114,9 +114,8 @@ Reader.prototype.getBoundry = function getBoundry (next) {
         return util.die('DB error at `getBoundry`');
       }
       var end = _.first(docs2).start;
-      return next(null, { first: start, last: end });
+      next(null, { first: start, last: end });
     });
-    return null;
   });
 }
 
