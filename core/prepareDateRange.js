@@ -22,14 +22,15 @@ var setDateRange = function(from, to) {
 
 module.exports = function(done) {
   scan((err, ranges) => {
-
-    if(_.size(ranges) === 1) {
+    if(_.size(ranges) === 0) {
+      util.die('Gekko wasn\'t able to find a daterange', true);
+    } else if(_.size(ranges) === 1) {
       var r = _.first(ranges);
       log.info('Gekko was able to find a single daterange in the locally stored history:');
       log.info('\t', 'from:', moment.unix(r.from).utc().format('YYYY-MM-DD HH:mm:ss'));
       log.info('\t', 'to:', moment.unix(r.to).utc().format('YYYY-MM-DD HH:mm:ss'));
 
-      
+
       setDateRange(r.from, r.to);
       return done();
     }

@@ -206,10 +206,24 @@ config.adapters = {
   mongodb: {
     path: 'plugins/mongodb',
     version: 0.1,
-    connectionString: 'mongodb://mongodb/gekko', // connection to mongodb server
+    connectionString: 'mongodb://localhost/gekko', // connection to mongodb server
     dependencies: [{
       module: 'mongojs',
       version: '2.4.0'
+    }]
+  },
+  // Influxdb adapter, requires influxdb >= 1.0 (no version earlier tested)
+  influxdb: {
+    path: 'plugins/influxdb',
+    version: 0.1,
+    host: 'localhost', // connection to influxdb server
+    port: '8086',
+    dbName: 'gekko',
+    username: '',
+    password: '',
+    dependencies: [{
+      module: 'influx',
+      version: '5.0.3'
     }]
   }
 }

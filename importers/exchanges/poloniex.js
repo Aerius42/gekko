@@ -10,7 +10,7 @@ var dirs = util.dirs();
 
 var Fetcher = require(dirs.exchanges + 'poloniex');
 
-var batchSize = 60 * 12; // 12 hour
+var batchSize = 60 * 1; // 2 hour
 var overlapSize = 10; // 10 minutes
 
 // Helper methods
@@ -24,6 +24,11 @@ Fetcher.prototype.getTrades = function(range, callback) {
   var process = function(err, result) {
     if(err || result.error)
       return this.retry(this.getTrades, args);
+
+    log.info(
+      'Trades result: ',
+      _.size(result)
+    );
 
     if(_.size(result) === 50000) {
       // to many trades..

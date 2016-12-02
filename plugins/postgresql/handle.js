@@ -1,5 +1,3 @@
-var _ = require('lodash');
-var fs = require('fs');
 var pg = require('pg');
 
 var util = require('../../core/util.js');
