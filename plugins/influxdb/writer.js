@@ -19,32 +19,17 @@ var Store = function(done) {
 }
 
 Store.prototype.writeCandles = function() {
-  if(_.isEmpty(this.candleCache)){
+  if(_.isEmpty(this.candleCache)) {
     return;
   }
 
-  _.each(this.candleCache, candle => {
-    this.db.writeMeasurement (influxUtil.settings.historyMeasurement, [{
-      fields: {
-        start: candle.start.unix(),
-        open: candle.open,
-        high: candle.high,
-        low: candle.low,
-        close: candle.close,
-        vwp: candle.vwp,
-        volume: candle.volume,
-        trades: candle.trades
-      },
-      timestamp: candle.start.unix()
-    }], {
-      precision: 's'
-    }).catch(err => {
-      log.info(err);
-      console.log(this.candleCache.length);
-      return util.die('DB error at `Influxdb/writer/writeCandles`');
-    });
+  this.db.writeMeasurement (influxUtil.settings.historyMeasurement, this.candleCache, {
+    precision: 's'
+  }).catch(err => {
+    log.info(err);
+    return util.die('DB error at `Influxdb/writer/writeCandles`');
   });
-  console.log(this.candleCache.length);
+
   this.candleCache = [];
 }
 
@@ -55,7 +40,20 @@ var processCandle = function(candle, done) {
   this.price = candle.close; // used in adviceWriter
   this.marketTime = candle.start;
 
-  this.candleCache.push(candle);
+  this.candleCache.push({
+    fields: {
+      start: candle.start.unix(),
+      open: candle.open,
+      high: candle.high,
+      low: candle.low,
+      close: candle.close,
+      vwp: candle.vwp,
+      volume: candle.volume,
+      trades: candle.trades
+    },
+    timestamp: candle.start.unix()
+  });
+
   _.defer(this.writeCandles);
   done();
 }

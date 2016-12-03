@@ -60,10 +60,13 @@ var client = new Influx.InfluxDB({
 
 client.getDatabaseNames().then(names => {
   if (!names.includes(config.adapters.influxdb.dbName)) {
-    return client.createDatabase(config.adapters.influxdb.dbName);
+    if (mode === 'backtest') {
+      util.die(`History table for ${config.watch.exchange} with pair ${influxUtil.settings.pair} is empty.`);
+    }
+    client.createDatabase(config.adapters.influxdb.dbName);
   }
 }).catch(err => {
-  console.error('Error Influx database: error connection or error creating database');
+  util.die(`Error Influx database: error connection or creating database`);
 });
 
 module.exports = client;

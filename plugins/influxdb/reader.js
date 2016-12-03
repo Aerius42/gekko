@@ -65,7 +65,7 @@ Reader.prototype.tableExists = function(name, next) {
     if(names.includes(influxUtil.settings.historyMeasurement)) {
       return next(null, true);
     } else {
-      return util.die('DB error at `tableExists`');
+      return util.die('DB error at `Influxdb/reader/tableExists`');
     }
   });
 }
