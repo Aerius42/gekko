@@ -40,7 +40,7 @@ Actor.prototype.generalizeMethodSettings = function() {
   // toml configuration file. In case of the toml config file we need to
   // parse and attach to main config object
 
-  // config already part of 
+  // config already part of
   if(config[this.methodName]) {
     log.warn('\t', 'Config already has', this.methodName, 'parameters. Ignoring toml file');
     return;

@@ -33,6 +33,15 @@ var plugins = [
     version: 0.1,
   },
   {
+    name: 'Advice writer',
+    description: 'Store advices in a database',
+    slug: 'adviceWriter',
+    async: true,
+    modes: ['realtime', 'backtest'],
+    path: config => config.adapter + '/writer',
+    version: 0.1,
+  },
+  {
     name: 'Trading Advisor',
     description: 'Calculate trading advice',
     slug: 'tradingAdvisor',
@@ -114,7 +123,7 @@ var plugins = [
     slug: 'adviceLogger',
     async: false,
     silent: true,
-    modes: ['realtime']
+    modes: ['realtime', 'backtest']
   },
   {
     name: 'Profit Simulator',

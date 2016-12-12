@@ -18,6 +18,8 @@ var Store = function(done) {
   done();
 }
 
+var mode = util.gekkoMode();
+
 Store.prototype.writeCandles = function() {
   if(_.isEmpty(this.candleCache)) {
     return;
@@ -40,46 +42,43 @@ var processCandle = function(candle, done) {
   this.price = candle.close; // used in adviceWriter
   this.marketTime = candle.start;
 
-  this.candleCache.push({
-    fields: {
-      start: candle.start.unix(),
-      open: candle.open,
-      high: candle.high,
-      low: candle.low,
-      close: candle.close,
-      vwp: candle.vwp,
-      volume: candle.volume,
-      trades: candle.trades
-    },
-    timestamp: candle.start.unix()
-  });
-
-  _.defer(this.writeCandles);
+  if (config.candleWriter.enabled) {
+    this.candleCache.push({
+      fields: {
+        start: candle.start.unix(),
+        open: candle.open,
+        high: candle.high,
+        low: candle.low,
+        close: candle.close,
+        vwp: candle.vwp,
+        volume: candle.volume,
+        trades: candle.trades
+      },
+      timestamp: candle.start.unix()
+    });
+    _.defer(this.writeCandles);
+  }
   done();
 }
 
-var processAdvice = function processAdvice (advice) {
-  if (config.candleWriter.muteSoft && advice.recommendation === 'soft') {
-    return;
-  }
+var processAdvice = function(advice) {
+  if (config.adviceWriter.muteSoft && advice.recommendation === 'soft') return;
 
   log.debug(`Writing advice '${advice.recommendation}' to database.`);
 
   this.db.writeMeasurement (influxUtil.settings.adviceMeasurement, [{
     fields: {
-      marketTime: this.marketTime,
+      marketTime: this.marketTime.unix(),
       recommendation: advice.recommendation,
       price: this.price,
       portfolio: advice.portfolio
     },
-    timestamp: moment().utc().unix()
+    timestamp: this.marketTime.unix()
   }],{
     precision: 's'
   }).catch(() => {
-    return util.die('DB error at `Influxdb/writer/processAdvice`')
+    return util.die('DB error at `Influxdb/writer/processAdvice`');
   });
-
-  this.adviceCollection.insert(mAdvice);
 }
 
 if (config.adviceWriter.enabled) {
@@ -88,8 +87,14 @@ if (config.adviceWriter.enabled) {
 }
 
 if (config.candleWriter.enabled) {
-  log.debug('Enabling candleWriter.');
-  Store.prototype.processCandle = processCandle;
+  if(mode === 'backtest') {
+    log.warn('CandleWriter disabled: not support in backtest mode');
+    config.candleWriter.enabled = false;
+  } else {
+    log.debug('Enabling candleWriter.');
+  }
 }
+
+Store.prototype.processCandle = processCandle;
 
 module.exports = Store;

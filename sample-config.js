@@ -57,6 +57,17 @@ config.adviceLogger = {
   muteSoft: true // disable advice printout if it's soft
 }
 
+config.candleWriter = {
+  adapter: 'sqlite',
+  enabled: true
+}
+
+config.adviceWriter = {
+  adapter: 'mongodb',
+  enabled: false,
+  muteSoft: true,
+}
+
 config.pushover = {
   enabled: false,
   sendPushoverOnStart: false,
@@ -160,25 +171,9 @@ config.redisBeacon = {
   ]
 }
 
-config.candleWriter = {
-  adapter: 'sqlite',
-  enabled: true
-}
-
-config.adviceWriter = {
-  adapter: 'mongodb',
-  enabled: false,
-  muteSoft: true,
-}
-
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                       CONFIGURING ADAPTER
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-
-
-
 
 config.adapters = {
   sqlite: {

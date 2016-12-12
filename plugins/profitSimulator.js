@@ -219,7 +219,7 @@ Logger.prototype.calculateReportStatistics = function() {
     endTime: this.dates.end.utc().format('DD-MM-YYYY HH:mm:ss'),
     timespan: timespan,
     buynhold: this.endPrice * 100 / this.startPrice - 100,
-    
+
     balance: balance,
     profit: profit,
     relativeProfit: relativeProfit,

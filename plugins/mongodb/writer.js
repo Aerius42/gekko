@@ -25,6 +25,8 @@ var Store = function Store (done) {
   done();
 }
 
+var mode = util.gekkoMode();
+
 Store.prototype.writeCandles = function writeCandles () {
   if (_.isEmpty(this.candleCache)) { // nothing to do
     return;
@@ -58,20 +60,20 @@ var processCandle = function processCandle (candle, done) {
   this.price = candle.close; // used in adviceWriter
   this.marketTime = candle.start;
 
-  this.candleCache.push(candle);
-  _.defer(this.writeCandles);
+  if (config.candleWriter.enabled) {
+    this.candleCache.push(candle);
+    _.defer(this.writeCandles);
+  }
   done();
 }
 
 var processAdvice = function processAdvice (advice) {
-  if (config.candleWriter.muteSoft && advice.recommendation === 'soft') {
-    return;
-  }
+  if (config.adviceWriter.muteSoft && advice.recommendation === 'soft') return;
 
   log.debug(`Writing advice '${advice.recommendation}' to database.`);
   var mAdvice = {
     time: moment().utc(),
-    marketTime: this.marketTime,
+    marketTime: this.marketTime.unix(),
     pair: this.pair,
     recommendation: advice.recommendation,
     price: this.price,
@@ -87,8 +89,14 @@ if (config.adviceWriter.enabled) {
 }
 
 if (config.candleWriter.enabled) {
-  log.debug('Enabling candleWriter.');
-  Store.prototype.processCandle = processCandle;
+  if(mode === 'backtest') {
+    log.warn('CandleWriter disabled: not support in backtest mode');
+    config.candleWriter.enabled = false;
+  } else {
+    log.debug('Enabling candleWriter.');
+  }
 }
+
+Store.prototype.processCandle = processCandle;
 
 module.exports = Store;
