@@ -8,6 +8,8 @@ var log = require(`${util.dirs().core}log`);
 var handle = require('./handle');
 var influxUtil = require('./util');
 
+var mode = util.gekkoMode();
+
 var Store = function(done) {
   _.bindAll(this);
   this.done = done;
@@ -15,10 +17,9 @@ var Store = function(done) {
   this.price = 'N/A';
   this.marketTime = 'N/A';
   this.candleCache = [];
+  this.adviceMeasurement = mode === 'backtest' ? influxUtil.settings.adviceBacktestMeasurement : influxUtil.settings.adviceMeasurement;
   done();
 }
-
-var mode = util.gekkoMode();
 
 Store.prototype.writeCandles = function() {
   if(_.isEmpty(this.candleCache)) {
@@ -65,8 +66,8 @@ var processAdvice = function(advice) {
   if (config.adviceWriter.muteSoft && advice.recommendation === 'soft') return;
 
   log.debug(`Writing advice '${advice.recommendation}' to database.`);
-
-  this.db.writeMeasurement (influxUtil.settings.adviceMeasurement, [{
+  
+  this.db.writeMeasurement ( this.adviceMeasurement, [{
     fields: {
       marketTime: this.marketTime.unix(),
       recommendation: advice.recommendation,

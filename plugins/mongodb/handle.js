@@ -22,7 +22,8 @@ var mode = util.gekkoMode();
 
 var collections = [
   mongoUtil.settings.historyCollection,
-  mongoUtil.settings.adviceCollection
+  mongoUtil.settings.adviceCollection,
+  mongoUtil.settings.adviceBacktestCollection
 ]
 
 var connection = mongojs(config.adapters.mongodb.connectionString, collections);

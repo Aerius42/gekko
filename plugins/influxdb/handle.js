@@ -55,11 +55,29 @@ var client = new Influx.InfluxDB({
       portfolio: Influx.FieldType.STRING
     },
     tags: []
+  },{
+    measurement: influxUtil.settings.adviceBacktestMeasurement,
+    fields: {
+      marketTime: Influx.FieldType.INTEGER,
+      recommendation: Influx.FieldType.STRING,
+      price: Influx.FieldType.FLOAT,
+      portfolio: Influx.FieldType.STRING
+    },
+    tags: []
   }]
 });
 
 client.getDatabaseNames().then(names => {
-  if (!names.includes(config.adapters.influxdb.dbName)) {
+  if (names.includes(config.adapters.influxdb.dbName)) {
+    if (mode === 'backtest') {
+      client.getMeasurements(config.adapters.influxdb.dbName).then( measurements => {
+        if(measurements.includes(influxUtil.settings.adviceBacktestMeasurement)) {
+          log.info('Old backtest advices detected in database: deletion');
+          client.dropMeasurements(influxUtil.settings.adviceBacktestMeasurement, config.adapters.influxdb.dbName);
+        }
+      });
+    }
+  } else {
     if (mode === 'backtest') {
       util.die(`History table for ${config.watch.exchange} with pair ${influxUtil.settings.pair} is empty.`);
     }

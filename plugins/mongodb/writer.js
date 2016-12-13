@@ -13,7 +13,7 @@ var Store = function Store (done) {
   this.done = done;
   this.db = handle;
   this.historyCollection = this.db.collection(mongoUtil.settings.historyCollection);
-  this.adviceCollection = this.db.collection(mongoUtil.settings.adviceCollection);
+  this.adviceCollection = mode === 'backtest' ? this.db.collection(mongoUtil.settings.adviceBacktestCollection) : this.db.collection(mongoUtil.settings.adviceCollection);
 
   this.candleCache = [];
 

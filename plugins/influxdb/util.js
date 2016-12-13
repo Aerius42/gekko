@@ -5,7 +5,8 @@ var settings = {
   exchange: watch.exchange,
   pair: [watch.currency, watch.asset],
   historyMeasurement: `${watch.exchange}_${watch.currency}_${watch.asset}_candles`,
-  adviceMeasurement: `${watch.exchange}_${watch.currency}_${watch.asset}_advices`
+  adviceMeasurement: `${watch.exchange}_${watch.currency}_${watch.asset}_advices`,
+  adviceBacktestMeasurement: `${watch.exchange}_${watch.currency}_${watch.asset}_backtest_advices`
 }
 
 module.exports = {
