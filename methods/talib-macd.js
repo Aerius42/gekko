@@ -1,8 +1,10 @@
 // If you want to use your own trading methods you can
 // write them here. For more information on everything you
 // can use please refer to this document:
-// 
+//
 // https://github.com/askmike/gekko/blob/stable/docs/trading_methods.md
+
+var log = require('../core/log.js');
 
 var config = require('../core/util.js').getConfig();
 var settings = config['talib-macd'];
@@ -36,7 +38,18 @@ method.update = function(candle) {
 
 
 method.log = function() {
-  // nothing!
+  var digits = 8;
+  var result = this.talibIndicators.mymacd.result;
+
+  var diff = parseFloat(result['outMACD']);
+  var signal = parseFloat(result['outMACDSignal']);
+  var macddiff = diff - signal;
+
+  log.debug('calculated Talib MACD properties for candle:');
+  log.debug('\t', 'macd:', diff.toFixed(digits));
+  log.debug('\t', 'signal:', signal.toFixed(digits));
+  log.debug('\t', 'macdiff:', macddiff.toFixed(digits));
+  log.debug('\t', 'trend:', this.trend);
 }
 
 // Based on the newly calculated
