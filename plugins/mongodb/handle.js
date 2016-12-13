@@ -32,6 +32,8 @@ var collection = connection.collection(mongoUtil.settings.historyCollection);
 if (mode === 'backtest') {
   var pair = mongoUtil.settings.pair.join('_');
 
+  // TODO: drop backtest advices collection if exists
+
   collection.find({ pair }).toArray((err, docs) => { // check if we've got any records
     if (err) {
       util.die(err);

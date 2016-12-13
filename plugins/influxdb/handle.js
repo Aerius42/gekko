@@ -73,7 +73,7 @@ client.getDatabaseNames().then(names => {
       client.getMeasurements(config.adapters.influxdb.dbName).then( measurements => {
         if(measurements.includes(influxUtil.settings.adviceBacktestMeasurement)) {
           log.info('Old backtest advices detected in database: deletion');
-          client.dropMeasurements(influxUtil.settings.adviceBacktestMeasurement, config.adapters.influxdb.dbName);
+          client.dropMeasurement(influxUtil.settings.adviceBacktestMeasurement, config.adapters.influxdb.dbName);
         }
       });
     }
