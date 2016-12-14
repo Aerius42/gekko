@@ -14,7 +14,6 @@ var Reader = function() {
 
 // returns the furtherst point (up to `from`) in time we have valid data from
 Reader.prototype.mostRecentWindow = function(from, to, next) {
-  console.log('A0');
   from = from.unix();
   to = to.unix();
 

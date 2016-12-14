@@ -22,7 +22,17 @@
 // emits: events emitted by this plugin that other plugins can subscribe to.
 // path: fn that returns path of file of the plugin (overwrites `gekko/plugins/{slug}`)
 //    when given the configuration object (relative from `gekko/plugins/`).
+// Comment: to save the tradingadvisor saved in database, we need to load it before writers plugins
 var plugins = [
+  {
+    name: 'Trading Advisor',
+    description: 'Calculate trading advice',
+    slug: 'tradingAdvisor',
+    async: true,
+    modes: ['realtime', 'backtest'],
+    emits: ['advice'],
+    path: config => 'tradingAdvisor/tradingAdvisor.js',
+  },
   {
     name: 'Candle writer',
     description: 'Store candles in a database',
@@ -40,15 +50,6 @@ var plugins = [
     modes: ['realtime', 'backtest'],
     path: config => config.adapter + '/writer',
     version: 0.1,
-  },
-  {
-    name: 'Trading Advisor',
-    description: 'Calculate trading advice',
-    slug: 'tradingAdvisor',
-    async: true,
-    modes: ['realtime', 'backtest'],
-    emits: ['advice'],
-    path: config => 'tradingAdvisor/tradingAdvisor.js',
   },
   {
     name: 'IRC bot',

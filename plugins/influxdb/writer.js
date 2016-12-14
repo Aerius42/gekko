@@ -66,7 +66,7 @@ var processAdvice = function(advice) {
   if (config.adviceWriter.muteSoft && advice.recommendation === 'soft') return;
 
   log.debug(`Writing advice '${advice.recommendation}' to database.`);
-  
+
   this.db.writeMeasurement ( this.adviceMeasurement, [{
     fields: {
       marketTime: this.marketTime.unix(),
@@ -83,7 +83,7 @@ var processAdvice = function(advice) {
 }
 
 if (config.adviceWriter.enabled) {
-  log.debug('Enabling adviceWriter.');
+  log.debug('\t', 'Enabling adviceWriter.');
   Store.prototype.processAdvice = processAdvice;
 }
 
