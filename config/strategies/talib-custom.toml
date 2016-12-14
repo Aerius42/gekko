@@ -1,0 +1,14 @@
+[bbandsParameters]
+optInTimePeriod = 30
+optInNbDevUp = 15
+optInNbDevDn = 15
+optInMAType = 0
+
+[thresholds]
+down = -0.025
+up = 0.025
+
+[outputs]
+upperBand = 'FLOAT'
+middleBand = 'FLOAT'
+lowerBand = 'FLOAT'
