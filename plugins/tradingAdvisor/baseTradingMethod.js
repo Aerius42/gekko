@@ -97,6 +97,9 @@ var Base = function() {
     volume: []
   };
 
+  // keep time for trading advisor ouputs
+  this.timeCache = [];
+
   // make sure we have all methods
   _.each(['init', 'check'], function(fn) {
     if(!this[fn])
@@ -130,6 +133,9 @@ util.makeEventEmitter(Base);
 Base.prototype.tick = function(candle) {
   this.age++;
   this.candle = candle;
+
+  // keep time for trading advisor ouputs
+  this.timeCache.push(candle.start);
 
   if(this.asyncTick) {
     this.candleProps.open.push(candle.open);
@@ -207,7 +213,10 @@ if(ENV !== 'child-process') {
 }
 
 Base.prototype.propogateTick = function() {
+
+  this.candle.adviceTime = this.timeCache.shift();
   this.update(this.candle);
+
   if(this.requiredHistory <= this.age) {
     this.log();
     this.check(this.candle);
@@ -257,15 +266,13 @@ Base.prototype.advice = function(newPosition) {
     advice = newPosition;
   }
 
-  let candle = this.candle;
-  candle.start = candle.start.clone();
-  _.defer(function() {
-    this.emit('advice', {
-      recommendation: advice,
-      portfolio: 1,
-      candle
-    });
-  }.bind(this));
+  this.emit('advice', {
+    recommendation: advice,
+    portfolio: 1,
+    candle: this.candle,
+    time: this.advice.time,
+    params: this.advice.params
+  });
 }
 
 // Because the trading method might be async we need

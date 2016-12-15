@@ -154,6 +154,12 @@ var util = {
     else
       return false;
   },
+  checkNaN: function(object) {
+    for (var key in object)
+      if (isNaN(object[key]))
+        return true;
+    return false;
+  }
 }
 
 // NOTE: those options are only used

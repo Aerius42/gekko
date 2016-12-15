@@ -1,7 +1,7 @@
 [bbandsParameters]
-optInTimePeriod = 30
-optInNbDevUp = 15
-optInNbDevDn = 15
+optInTimePeriod = 20
+optInNbDevUp = 1
+optInNbDevDn = 1
 optInMAType = 0
 
 [thresholds]

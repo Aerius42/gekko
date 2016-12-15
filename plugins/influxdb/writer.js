@@ -17,7 +17,9 @@ var Store = function(done) {
   this.price = 'N/A';
   this.marketTime = 'N/A';
   this.candleCache = [];
+  this.paramsCache = [];
   this.adviceMeasurement = mode === 'backtest' ? influxUtil.settings.adviceBacktestMeasurement : influxUtil.settings.adviceMeasurement;
+  this.adviceParamMeasurement = mode === 'backtest' ? influxUtil.settings.adviceBacktestParamMeasurement : influxUtil.settings.adviceParamMeasurement;
   done();
 }
 
@@ -62,11 +64,40 @@ var processCandle = function(candle, done) {
   done();
 }
 
+Store.prototype.writeTradingAdvisorParams = function() {
+  if(_.isEmpty(this.paramsCache)) {
+    return;
+  }
+  this.db.writeMeasurement (this.adviceParamMeasurement, this.paramsCache, {
+    precision: 's'
+  }).catch(err => {
+    return util.die('DB error at `Influxdb/writer/processAdvice (writing params)`');
+  });
+
+  this.paramsCache = [];
+}
+
 var processAdvice = function(advice) {
+
+  // Writing tradingAdvisor params
+  if (config.tradingAdvisor.writingParamsEnabled) {
+
+    if (util.checkNaN(advice.params)) {
+      log.warn(`NaN detected, skip values`);
+    } else {
+      this.paramsCache.push({
+        fields: _.clone(advice.params),
+        timestamp: advice.time.unix()
+      });
+      _.defer(this.writeTradingAdvisorParams);
+    }
+  }
+
+  // Check muteSoft
   if (config.adviceWriter.muteSoft && advice.recommendation === 'soft') return;
 
+  // Writing advice
   log.debug(`Writing advice '${advice.recommendation}' to database.`);
-
   this.db.writeMeasurement ( this.adviceMeasurement, [{
     fields: {
       marketTime: this.marketTime.unix(),
@@ -77,8 +108,8 @@ var processAdvice = function(advice) {
     timestamp: this.marketTime.unix()
   }],{
     precision: 's'
-  }).catch(() => {
-    return util.die('DB error at `Influxdb/writer/processAdvice`');
+  }).catch(err => {
+    return util.die('DB error at `Influxdb/writer/processAdvice (writing advice)`');
   });
 }
 

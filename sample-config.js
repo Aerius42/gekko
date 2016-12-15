@@ -35,7 +35,8 @@ config.tradingAdvisor = {
   talib: {
     enabled: false,
     version: '1.0.2'
-  }
+  },
+  writingOutputsEnabled: true
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

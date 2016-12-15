@@ -74,7 +74,7 @@ schema.push({
 if (typeof config[config.tradingAdvisor.method].outputs !== 'undefined') {
   log.info('\t', 'Trading Advisor outputs parameters detected, prepare db');
   schema.push({
-    measurement: mode === 'backtest' ? influxUtil.settings.adviceBacktestParamMeasurement : adviceParamMeasurement,
+    measurement: mode === 'backtest' ? influxUtil.settings.adviceBacktestParamMeasurement : influxUtil.settings.adviceParamMeasurement,
     fields: analyseOutputs(config[config.tradingAdvisor.method].outputs),
     tags: []
   });
@@ -98,6 +98,10 @@ client.getDatabaseNames().then(names => {
         if(measurements.includes(influxUtil.settings.adviceBacktestMeasurement)) {
           log.info('\t', 'Old backtest advices detected in database: deletion');
           client.dropMeasurement(influxUtil.settings.adviceBacktestMeasurement, config.adapters.influxdb.dbName);
+        }
+        if(measurements.includes(influxUtil.settings.adviceBacktestParamMeasurement)) {
+          log.info('\t', 'Old backtest outputs advices detected in database: deletion');
+          client.dropMeasurement(influxUtil.settings.adviceBacktestParamMeasurement, config.adapters.influxdb.dbName);
         }
       });
     }
