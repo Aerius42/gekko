@@ -98,7 +98,9 @@ var Base = function() {
   };
 
   // keep time for trading advisor ouputs
-  this.timeCache = [];
+  // this.timeCache = [];
+  this.candleCache = [];
+  // this.priceCache = [];
 
   // make sure we have all methods
   _.each(['init', 'check'], function(fn) {
@@ -132,10 +134,11 @@ util.makeEventEmitter(Base);
 
 Base.prototype.tick = function(candle) {
   this.age++;
-  this.candle = candle;
+  // this.candle = candle;
+  this.candleCache.push(candle);
 
   // keep time for trading advisor ouputs
-  this.timeCache.push(candle.start);
+  // this.timeCache.push(candle.start);
 
   if(this.asyncTick) {
     this.candleProps.open.push(candle.open);
@@ -194,7 +197,8 @@ Base.prototype.tick = function(candle) {
   }
 
   // update previous price
-  this.lastPrice = price;
+  // this.lastPrice = price;
+  // this.priceCache.push(price);
 
   this.propogateCustomCandle(candle);
 }
@@ -214,7 +218,12 @@ if(ENV !== 'child-process') {
 
 Base.prototype.propogateTick = function() {
 
-  this.candle.adviceTime = this.timeCache.shift();
+  this.candle = this.candleCache.shift();
+  this.lastPrice = this.candle.close;
+  this.advice.time = this.candle.start;
+  // this.candle.adviceTime = this.timeCache.shift();
+  // this.lastPrice = this.priceCache.shift();
+
   this.update(this.candle);
 
   if(this.requiredHistory <= this.age) {

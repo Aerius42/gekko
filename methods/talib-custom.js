@@ -36,7 +36,8 @@ method.init = function() {
   this.advice.params = {
     upperBand: NaN,
     middleBand: NaN,
-    lowerBand: NaN
+    lowerBand: NaN,
+    maxPrice: 0
   };
 }
 
@@ -44,11 +45,10 @@ method.init = function() {
 method.update = function(candle) {
   var result = this.talibIndicators.mybbands.result;
 
-  this.advice.time = candle.adviceTime;
+  // this.advice.time = candle.adviceTime;
   this.advice.params.upperBand = parseFloat(result.outRealUpperBand);
   this.advice.params.middleBand = parseFloat(result.outRealMiddleBand);
   this.advice.params.lowerBand = parseFloat(result.outRealLowerBand);
-
   this.advice();
 }
 
@@ -61,6 +61,8 @@ method.log = function() {
   log.debug('\t', 'UpperBands:', this.advice.params.upperBand.toFixed(digits));
   log.debug('\t', 'MiddleBands:', this.advice.params.middleBand.toFixed(digits));
   log.debug('\t', 'LowerBands:', this.advice.params.lowerBand.toFixed(digits));
+  log.debug('\t', 'MaxPrice:', this.advice.params.maxPrice.toFixed(digits));
+  log.debug('\t', 'LastPrice:', this.lastPrice.toFixed(digits));
   log.debug('\t', 'trend:', this.trend);
 }
 
@@ -68,15 +70,29 @@ method.log = function() {
 // information, check if we should
 // update or not.
 method.check = function() {
-  if( this.lastPrice > this.advice.params.upperBand*1.05 && this.trend !== 'short') {
-    this.trend = 'short';
-    this.advice('short');
+  // buy
+  if (this.trend !== 'long' && this.lastPrice > this.advice.params.upperBand*(1+settings.thresholds.up)) {
+    this.advice.params.maxPrice = this.lastPrice;
 
-  } else if( this.lastPrice < this.advice.params.upperBand*1.05 && this.trend !== 'long'){
     this.trend = 'long';
     this.advice('long');
-
+    return;
   }
+
+  // sell
+  if (this.trend !== 'short' && this.lastPrice < this.advice.params.maxPrice*(1+settings.thresholds.down)) {
+  // if (this.trend !== 'short' && ( this.lastPrice < this.advice.params.upperBand || this.lastPrice < this.maxPrice )) {
+
+    this.trend = 'short';
+    this.advice('short');
+    return;
+  }
+
+  if (this.trend === 'long') {
+    this.advice.params.maxPrice = this.lastPrice > this.advice.params.maxPrice ? this.lastPrice : this.advice.params.maxPrice;
+  }
+  // this.advice();
+  // return;
 }
 
 module.exports = method;
