@@ -42,8 +42,6 @@ var processCandle = function(candle, done) {
   // because we might get a lot of candles
   // in the same tick, we rather batch them
   // up and insert them at once at next tick.
-  this.price = candle.close; // used in adviceWriter
-  this.marketTime = candle.start;
 
   if (config.candleWriter.enabled) {
     this.candleCache.push({
@@ -100,12 +98,12 @@ var processAdvice = function(advice) {
   log.debug(`Writing advice '${advice.recommendation}' to database.`);
   this.db.writeMeasurement ( this.adviceMeasurement, [{
     fields: {
-      marketTime: this.marketTime.unix(),
+      marketTime: advice.time.unix(),
       recommendation: advice.recommendation,
-      price: this.price,
+      price: advice.candle.close,
       portfolio: advice.portfolio
     },
-    timestamp: this.marketTime.unix()
+    timestamp: advice.time.unix()
   }],{
     precision: 's'
   }).catch(err => {
@@ -124,9 +122,8 @@ if (config.candleWriter.enabled) {
     config.candleWriter.enabled = false;
   } else {
     log.debug('Enabling candleWriter.');
+    Store.prototype.processCandle = processCandle;
   }
 }
-
-Store.prototype.processCandle = processCandle;
 
 module.exports = Store;
