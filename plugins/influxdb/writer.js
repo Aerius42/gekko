@@ -18,6 +18,7 @@ var Store = function(done) {
   this.marketTime = 'N/A';
   this.candleCache = [];
   this.paramsCache = [];
+  this.advicesCache = [];
   this.adviceMeasurement = mode === 'backtest' ? influxUtil.settings.adviceBacktestMeasurement : influxUtil.settings.adviceMeasurement;
   this.adviceParamMeasurement = mode === 'backtest' ? influxUtil.settings.adviceBacktestParamMeasurement : influxUtil.settings.adviceParamMeasurement;
   done();
@@ -75,6 +76,19 @@ Store.prototype.writeTradingAdvisorParams = function() {
   this.paramsCache = [];
 }
 
+Store.prototype.writeTradingAdvisorAdvices = function() {
+  if(_.isEmpty(this.advicesCache)) {
+    return;
+  }
+  this.db.writeMeasurement (this.adviceMeasurement, this.advicesCache, {
+    precision: 's'
+  }).catch(err => {
+    return util.die('DB error at `Influxdb/writer/processAdvice (writing advice)`');
+  });
+
+  this.advicesCache = [];
+}
+
 var processAdvice = function(advice) {
 
   // Writing tradingAdvisor params
@@ -95,20 +109,17 @@ var processAdvice = function(advice) {
   if (config.adviceWriter.muteSoft && advice.recommendation === 'soft') return;
 
   // Writing advice
-  log.debug(`Writing advice '${advice.recommendation}' to database.`);
-  this.db.writeMeasurement ( this.adviceMeasurement, [{
+  // log.debug(`Writing advice '${advice.recommendation}' to database.`);
+  this.advicesCache.push({
     fields: {
       marketTime: advice.time.unix(),
       recommendation: advice.recommendation,
-      price: advice.candle.close,
+      price: advice.lastPrice,
       portfolio: advice.portfolio
     },
     timestamp: advice.time.unix()
-  }],{
-    precision: 's'
-  }).catch(err => {
-    return util.die('DB error at `Influxdb/writer/processAdvice (writing advice)`');
   });
+  _.defer(this.writeTradingAdvisorAdvices);
 }
 
 if (config.adviceWriter.enabled) {

@@ -269,6 +269,7 @@ Base.prototype.advice = function(newPosition) {
     portfolio: 1,
     candle: this.candle,
     time: this.advice.time,
+    lastPrice: this.lastPrice,
     params: this.advice.params
   });
 }

@@ -1,16 +1,17 @@
 [bbandsParameters]
-optInTimePeriod = 60
+optInTimePeriod = 20
 optInNbDevUp = 1
 optInNbDevDn = 1
 optInMAType = 0
 
 [thresholds]
-down = -0.015
-up = 0.015
+up = 0.0075
+down = -0.01
+limit = 0.015
 
 [outputs]
 upperBand = 'FLOAT'
 middleBand = 'FLOAT'
 lowerBand = 'FLOAT'
+longPrice = 'FLOAT'
 maxPrice = 'FLOAT'
-lastPrice = 'FLOAT'

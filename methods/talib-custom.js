@@ -37,6 +37,7 @@ method.init = function() {
     upperBand: NaN,
     middleBand: NaN,
     lowerBand: NaN,
+    longPrice: 0,
     maxPrice: 0
   };
 }
@@ -56,16 +57,16 @@ method.update = function(candle) {
 
 
 method.log = function() {
-  var digits = 8;
+  // var digits = 8;
 
-  log.debug('calculated Talib Bbands properties for candle:');
-  log.debug('\t', 'Time:', this.advice.time.format('YYYY-MM-DD HH:mm'));
-  log.debug('\t', 'UpperBands:', this.advice.params.upperBand.toFixed(digits));
-  log.debug('\t', 'MiddleBands:', this.advice.params.middleBand.toFixed(digits));
-  log.debug('\t', 'LowerBands:', this.advice.params.lowerBand.toFixed(digits));
-  log.debug('\t', 'MaxPrice:', this.advice.params.maxPrice.toFixed(digits));
-  log.debug('\t', 'LastPrice:', this.lastPrice.toFixed(digits));
-  log.debug('\t', 'trend:', this.trend);
+  // log.debug('calculated Talib Bbands properties for candle:');
+  // log.debug('\t', 'Time:', this.advice.time.format('YYYY-MM-DD HH:mm'));
+  // log.debug('\t', 'UpperBands:', this.advice.params.upperBand.toFixed(digits));
+  // log.debug('\t', 'MiddleBands:', this.advice.params.middleBand.toFixed(digits));
+  // log.debug('\t', 'LowerBands:', this.advice.params.lowerBand.toFixed(digits));
+  // log.debug('\t', 'MaxPrice:', this.advice.params.maxPrice.toFixed(digits));
+  // log.debug('\t', 'LastPrice:', this.lastPrice.toFixed(digits));
+  // log.debug('\t', 'trend:', this.trend);
 }
 
 // Based on the newly calculated
@@ -73,9 +74,12 @@ method.log = function() {
 // update or not.
 method.check = function() {
   // buy
-  // if (this.trend !== 'long' && this.lastPrice > this.advice.params.upperBand*(1+settings.thresholds.up)) {
-  if (this.trend !== 'long' && this.lastPrice > this.advice.params.upperBand) {
+  if (this.trend !== 'long' && (
+    this.lastPrice > this.advice.params.upperBand * (1+settings.thresholds.up)
+  )) {
+
     this.advice.params.maxPrice = this.lastPrice;
+    // this.advice.params.longPrice = this.lastPrice;
 
     this.trend = 'long';
     this.advice('long');
@@ -83,8 +87,11 @@ method.check = function() {
   }
 
   // sell
-  if (this.trend !== 'short' && ( this.lastPrice < this.advice.params.maxPrice*(1+settings.thresholds.down) || this.lastPrice < this.advice.params.upperBand )) {
-  // if (this.trend !== 'short' && ( this.lastPrice < this.advice.params.upperBand || this.lastPrice < this.maxPrice )) {
+  if (this.trend !== 'short' && (
+    // this.lastPrice < this.advice.params.maxPrice*(1+settings.thresholds.down)
+    this.lastPrice < this.advice.params.upperBand * (1+settings.thresholds.down)
+    // || this.lastPrice < this.advice.params.longPrice*(1+settings.thresholds.limit)
+  )) {
 
     this.trend = 'short';
     this.advice('short');
