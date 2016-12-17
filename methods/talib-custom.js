@@ -21,7 +21,8 @@ method.init = function() {
   // here, on every new candle we use this
   // state object to check if we need to
   // report it.
-  this.trend = 'none';
+  this.trend = 'short';
+  this.count = 0;
 
   // how many candles do we need as a base
   // before we can start giving advice?
@@ -34,11 +35,15 @@ method.init = function() {
 
   // list displayed output (use the same name as config)
   this.advice.params = {
-    upperBand: NaN,
-    middleBand: NaN,
-    lowerBand: NaN,
-    longPrice: 0,
-    maxPrice: 0
+    upperBand: 0,
+    middleBand: 0,
+    lowerBand: 0,
+    settlePrice: 0,
+    maxPrice: 0,
+
+    action: 0,
+    indicator: 0,
+    indicator2: 0
   };
 }
 
@@ -51,7 +56,20 @@ method.update = function(candle) {
   this.advice.params.lowerBand = parseFloat(result.outRealLowerBand);
 
   if (this.trend === 'long') {
+    this.advice.params.settlePrice = this.lastPrice;
     this.advice.params.maxPrice = this.lastPrice > this.advice.params.maxPrice ? this.lastPrice : this.advice.params.maxPrice;
+  }
+
+  this.advice.params.indicator = this.advice.params.upperBand * (1+settings.thresholds.up);
+  this.advice.params.indicator2 = this.advice.params.upperBand * (1+settings.thresholds.down);
+
+  if (this.trend === 'short') {
+    if (this.lastPrice > this.advice.params.upperBand * (1+settings.thresholds.up)) {
+      this.count++;
+    }
+    if (this.lastPrice < this.advice.params.upperBand * (1+settings.thresholds.up)) {
+      this.count = 0;
+    }
   }
 }
 
@@ -67,6 +85,9 @@ method.log = function() {
   // log.debug('\t', 'MaxPrice:', this.advice.params.maxPrice.toFixed(digits));
   // log.debug('\t', 'LastPrice:', this.lastPrice.toFixed(digits));
   // log.debug('\t', 'trend:', this.trend);
+
+  // if( this.advice.time > moment('2016-11-24 20:00'))
+  //   stop
 }
 
 // Based on the newly calculated
@@ -75,11 +96,15 @@ method.log = function() {
 method.check = function() {
   // buy
   if (this.trend !== 'long' && (
-    this.lastPrice > this.advice.params.upperBand * (1+settings.thresholds.up)
+    // this.lastPrice > this.advice.params.upperBand * (1+settings.thresholds.up)
+    this.lastPrice > this.advice.params.upperBand
+    && this.count > settings.thresholds.count
   )) {
 
     this.advice.params.maxPrice = this.lastPrice;
-    // this.advice.params.longPrice = this.lastPrice;
+    this.advice.params.settlePrice = this.lastPrice;
+
+    this.advice.params.action = this.lastPrice*1.1;
 
     this.trend = 'long';
     this.advice('long');
@@ -88,10 +113,13 @@ method.check = function() {
 
   // sell
   if (this.trend !== 'short' && (
-    // this.lastPrice < this.advice.params.maxPrice*(1+settings.thresholds.down)
-    this.lastPrice < this.advice.params.upperBand * (1+settings.thresholds.down)
-    // || this.lastPrice < this.advice.params.longPrice*(1+settings.thresholds.limit)
+    this.lastPrice < this.advice.params.maxPrice*(1+settings.thresholds.down)
+    || this.lastPrice < this.advice.params.middleBand
   )) {
+
+    this.count = 0;
+
+    this.advice.params.action = this.lastPrice*0.9;
 
     this.trend = 'short';
     this.advice('short');

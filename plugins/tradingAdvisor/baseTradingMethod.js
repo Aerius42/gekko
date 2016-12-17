@@ -1,4 +1,5 @@
 var _ = require('lodash');
+var moment = require('moment');
 var util = require('../../core/util');
 var config = util.getConfig();
 var dirs = util.dirs();
@@ -210,7 +211,9 @@ Base.prototype.propogateTick = function() {
 
   this.candle = this.candleCache.shift();
   this.lastPrice = this.candle.close;
-  this.advice.time = this.candle.start;
+
+  // Synchronize time advice
+  this.advice.time = moment(this.candle.start).add(config.tradingAdvisor.candleSize,'m');
 
   this.update(this.candle);
   this.advice();

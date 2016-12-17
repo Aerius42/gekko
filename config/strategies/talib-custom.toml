@@ -1,17 +1,33 @@
+#XMR
+# [bbandsParameters]
+# optInTimePeriod = 20
+# optInNbDevUp = 1
+# optInNbDevDn = 1
+# optInMAType = 0
+#
+# [thresholds]
+# up = 0.0085
+# down = -0.01
+# count = 3
+
+#STR
 [bbandsParameters]
 optInTimePeriod = 20
-optInNbDevUp = 1
-optInNbDevDn = 1
+optInNbDevUp = 2
+optInNbDevDn = 2
 optInMAType = 0
 
 [thresholds]
-up = 0.0075
-down = -0.01
-limit = 0.015
+up = 0.025
+down = -0.08
+count = 3
 
 [outputs]
 upperBand = 'FLOAT'
 middleBand = 'FLOAT'
 lowerBand = 'FLOAT'
-longPrice = 'FLOAT'
+settlePrice = 'FLOAT'
 maxPrice = 'FLOAT'
+action = 'FLOAT'
+indicator = 'FLOAT'
+indicator2 = 'FLOAT'

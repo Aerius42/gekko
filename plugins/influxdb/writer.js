@@ -95,7 +95,7 @@ var processAdvice = function(advice) {
   if (config.tradingAdvisor.writingParamsEnabled) {
 
     if (util.checkNaN(advice.params)) {
-      log.warn(`NaN detected, skip values`);
+      log.warn(`${advice.time.format('YYYY-MM-DD HH:mm:ss')}: NaN detected, skip values`);
     } else {
       this.paramsCache.push({
         fields: _.clone(advice.params),

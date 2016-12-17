@@ -71,7 +71,8 @@ schema.push({
   },
   tags: []
 });
-if (typeof config[config.tradingAdvisor.method].outputs !== 'undefined') {
+
+if (typeof config[config.tradingAdvisor.method] !== 'undefined' && typeof config[config.tradingAdvisor.method].outputs !== 'undefined') {
   log.info('\t', 'Trading Advisor outputs parameters detected, prepare db');
   schema.push({
     measurement: mode === 'backtest' ? influxUtil.settings.adviceBacktestParamMeasurement : influxUtil.settings.adviceParamMeasurement,
