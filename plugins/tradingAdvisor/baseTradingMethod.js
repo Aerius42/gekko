@@ -219,7 +219,8 @@ Base.prototype.propogateTick = function() {
   this.advice();
 
   if(this.requiredHistory <= this.age) {
-    this.log();
+    if(config.tradingAdvisor.logEnable)
+      this.log();
     this.check(this.candle);
   }
   this.processedTicks++;

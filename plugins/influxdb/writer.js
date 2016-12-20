@@ -93,15 +93,16 @@ var processAdvice = function(advice) {
 
   // Writing tradingAdvisor params
   if (config.tradingAdvisor.writingParamsEnabled) {
-
-    if (util.checkNaN(advice.params)) {
-      log.warn(`${advice.time.format('YYYY-MM-DD HH:mm:ss')}: NaN detected, skip values`);
-    } else {
-      this.paramsCache.push({
-        fields: _.clone(advice.params),
-        timestamp: advice.time.unix()
-      });
-      _.defer(this.writeTradingAdvisorParams);
+    if (typeof advice.params !== 'undefined') {
+      if (util.checkNaN(advice.params)) {
+        log.warn(`${advice.time.format('YYYY-MM-DD HH:mm:ss')}: NaN detected, skip values`);
+      } else {
+        this.paramsCache.push({
+          fields: _.clone(advice.params),
+          timestamp: advice.time.unix()
+        });
+        _.defer(this.writeTradingAdvisorParams);
+      }
     }
   }
 

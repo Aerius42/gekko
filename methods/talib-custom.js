@@ -41,9 +41,9 @@ method.init = function() {
     settlePrice: 0,
     maxPrice: 0,
 
-    action: 0,
-    indicator: 0,
-    indicator2: 0
+    action: 0
+    // indicator: 0,
+    // indicator2: 0
   };
 }
 
@@ -56,12 +56,11 @@ method.update = function(candle) {
   this.advice.params.lowerBand = parseFloat(result.outRealLowerBand);
 
   if (this.trend === 'long') {
-    this.advice.params.settlePrice = this.lastPrice;
     this.advice.params.maxPrice = this.lastPrice > this.advice.params.maxPrice ? this.lastPrice : this.advice.params.maxPrice;
   }
 
-  this.advice.params.indicator = this.advice.params.upperBand * (1+settings.thresholds.up);
-  this.advice.params.indicator2 = this.advice.params.upperBand * (1+settings.thresholds.down);
+  // this.advice.params.indicator = this.advice.params.upperBand * (1+settings.thresholds.up);
+  // this.advice.params.indicator2 = this.advice.params.upperBand * (1+settings.thresholds.down);
 
   if (this.trend === 'short') {
     if (this.lastPrice > this.advice.params.upperBand * (1+settings.thresholds.up)) {
@@ -76,7 +75,7 @@ method.update = function(candle) {
 
 method.log = function() {
   // var digits = 8;
-
+  //
   // log.debug('calculated Talib Bbands properties for candle:');
   // log.debug('\t', 'Time:', this.advice.time.format('YYYY-MM-DD HH:mm'));
   // log.debug('\t', 'UpperBands:', this.advice.params.upperBand.toFixed(digits));
@@ -94,12 +93,20 @@ method.log = function() {
 // information, check if we should
 // update or not.
 method.check = function() {
+
   // buy
   if (this.trend !== 'long' && (
-    // this.lastPrice > this.advice.params.upperBand * (1+settings.thresholds.up)
-    this.lastPrice > this.advice.params.upperBand
+    (this.advice.params.upperBand - this.advice.params.middleBand) / this.advice.params.middleBand  > settings.thresholds.bandDev
+    && this.lastPrice > this.advice.params.upperBand * (1+settings.thresholds.up)
     && this.count > settings.thresholds.count
   )) {
+
+    if (this.lastPrice > this.advice.params.upperBand * (1+settings.thresholds.up))
+      console.log("up band");
+    if (this.count > settings.thresholds.count)
+      console.log("count = " + settings.thresholds.count);
+
+    console.log("devBand = " + (this.advice.params.upperBand - this.advice.params.middleBand) / this.advice.params.middleBand);
 
     this.advice.params.maxPrice = this.lastPrice;
     this.advice.params.settlePrice = this.lastPrice;
@@ -113,11 +120,21 @@ method.check = function() {
 
   // sell
   if (this.trend !== 'short' && (
-    this.lastPrice < this.advice.params.maxPrice*(1+settings.thresholds.down)
-    || this.lastPrice < this.advice.params.middleBand
+    this.lastPrice < this.advice.params.maxPrice*(1+settings.thresholds.downMax)
+    || this.lastPrice < this.advice.params.middleBand*(1+settings.thresholds.downMid)
+    || this.lastPrice < this.advice.params.settlePrice*(1+settings.thresholds.downSet)
   )) {
 
+    if(this.lastPrice < this.advice.params.maxPrice*(1+settings.thresholds.downMax))
+      console.log("maxPrice: "+ this.advice.params.maxPrice*(1+settings.thresholds.downMax));
+    if(this.lastPrice < this.advice.params.middleBand*(1+settings.thresholds.downMid))
+      console.log("midBand "+ this.advice.params.middleBand*(1+settings.thresholds.downMid));
+    if(this.lastPrice < this.advice.params.settlePrice*(1+settings.thresholds.downSet))
+      console.log("settlePrice "+ this.advice.params.settlePrice*(1+settings.thresholds.downSet));
+
     this.count = 0;
+
+    this.advice.params.settlePrice = this.lastPrice;
 
     this.advice.params.action = this.lastPrice*0.9;
 
